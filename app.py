@@ -10,7 +10,7 @@ app.secret_key = 'apple_inspired_secret_key_here'
 def get_db_connection():
     # Update these credentials as necessary for your local MySQL server.
     return pymysql.connect(
-        host='172.29.112.1',
+        host='172.xx.xxx.x', # Use your MySQL server's IP address
         user='root',
         password='', 
         database='cms_db',
