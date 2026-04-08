@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}Ticket #{{ ticket.ticket_id }} - CMS{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto flex flex-col gap-8">
+    
+    <div class="glass-card p-8">
+        <div class="flex justify-between items-start mb-6">
+            <div>
+                <h1 class="text-3xl font-semibold tracking-tight text-slate-900 mb-2">{{ ticket.title }}</h1>
+                <p class="text-sm text-slate-500">
+                    Opened by <span class="font-medium text-slate-700">{{ ticket.user_name }}</span> on {{ ticket.created_at }}
+                </p>
+            </div>
+            <span class="px-4 py-2 rounded-full text-sm font-semibold tracking-wide
+                {% if ticket.status == 'Resolved' %} bg-green-100 text-green-800
+                {% elif ticket.status == 'In Progress' %} bg-blue-100 text-blue-800
+                {% else %} bg-slate-100 text-slate-800
+                {% endif %}">
+                {{ ticket.status }}
+            </span>
+        </div>
+        
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 text-sm">
+            <div class="bg-slate-50 p-4 rounded-xl">
+                <span class="block text-slate-500 mb-1">Category</span>
+                <span class="font-medium">{{ ticket.category_name }}</span>
+            </div>
+            <div class="bg-slate-50 p-4 rounded-xl">
+                <span class="block text-slate-500 mb-1">Priority</span>
+                <span class="font-medium">{{ ticket.priority }}</span>
+            </div>
+            <div class="bg-slate-50 p-4 rounded-xl">
+                <span class="block text-slate-500 mb-1">Updated At</span>
+                <span class="font-medium">{{ ticket.updated_at if ticket.updated_at else '-' }}</span>
+            </div>
+            <div class="bg-slate-50 p-4 rounded-xl">
+                <span class="block text-slate-500 mb-1">Resolved At</span>
+                <span class="font-medium">{{ ticket.resolved_at if ticket.resolved_at else '-' }}</span>
+            </div>
+        </div>
+
+        <div class="prose prose-slate max-w-none mb-8">
+            <h3 class="text-lg font-medium mb-2">Description</h3>
+            <p class="text-slate-700 whitespace-pre-wrap bg-white border border-slate-100 p-6 rounded-xl">{{ ticket.description }}</p>
+        </div>
+
+        {% if ticket.attachment_path %}
+        <div class="mb-4">
+            <h3 class="text-lg font-medium mb-2">Attachment</h3>
+            <a href="{{ url_for('static', filename='uploads/' ~ ticket.attachment_path) }}" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition text-sm font-medium">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                View Attached File
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="glass-card p-8">
+        <h2 class="text-2xl font-semibold mb-6">Activity Log & Comments</h2>
+        
+        <div class="flex flex-col gap-6 mb-8">
+            {% for log in logs %}
+            <div class="flex gap-4">
+                <div class="w-10 h-10 rounded-full {% if log.user_role == 'admin' %}bg-purple-100 text-purple-600{% else %}bg-blue-100 text-blue-600{% endif %} flex-shrink-0 flex items-center justify-center font-bold">
+                    {{ log.user_name[0]|upper }}
+                </div>
+                <div class="flex-grow bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-semibold text-slate-900">{{ log.user_name }} <span class="font-normal text-slate-500 text-xs ml-2">({{ log.user_role }})</span></span>
+                        <span class="text-xs text-slate-400">{{ log.created_at }}</span>
+                    </div>
+                    <p class="text-slate-700 whitespace-pre-wrap text-sm leading-relaxed">{{ log.comment }}</p>
+                </div>
+            </div>
+            {% else %}
+            <p class="text-center text-slate-500 py-8 bg-slate-50 rounded-xl">No activity recorded yet. Start the conversation!</p>
+            {% endfor %}
+        </div>
+
+        {% if ticket.status != 'Resolved' %}
+        <form action="{{ url_for('add_comment', ticket_id=ticket.ticket_id) }}" method="POST" class="mt-4">
+            <div class="mb-4">
+                <label for="comment" class="sr-only">Add a comment</label>
+                <textarea name="comment" id="comment" rows="3" required class="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition shadow-sm text-sm" placeholder="Type a comment or status update..."></textarea>
+            </div>
+            <div class="flex justify-end pt-2">
+                <button type="submit" class="bg-blue-600 text-white px-6 py-2.5 rounded-xl font-medium hover:bg-blue-700 transition shadow-sm text-sm">
+                    Post Comment
+                </button>
+            </div>
+        </form>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

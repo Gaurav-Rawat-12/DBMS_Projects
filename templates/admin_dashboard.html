@@ -29,7 +29,9 @@
                         <td class="px-6 py-4 font-medium text-slate-900">#{{ t.ticket_id }}</td>
                         <td class="px-6 py-4">{{ t.user_name }}</td>
                         <td class="px-6 py-4 max-w-xs">
-                            <div class="font-medium text-slate-900 truncate">{{ t.title }}</div>
+                            <div class="font-medium text-slate-900 truncate">
+                                <a href="{{ url_for('ticket_detail', ticket_id=t.ticket_id) }}" class="hover:text-purple-600 transition">{{ t.title }}</a>
+                            </div>
                             <div class="text-xs text-slate-400 mt-1">{{ t.created_at.strftime('%b %d, %Y') }}</div>
                         </td>
                         <td class="px-6 py-4">

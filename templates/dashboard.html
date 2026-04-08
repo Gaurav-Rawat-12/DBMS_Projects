@@ -19,7 +19,7 @@
     {% if tickets %}
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {% for ticket in tickets %}
-        <div class="glass-card p-6 flex flex-col h-full group hover:shadow-lg transition-all duration-300">
+        <a href="{{ url_for('ticket_detail', ticket_id=ticket.ticket_id) }}" class="glass-card p-6 flex flex-col h-full group hover:shadow-lg transition-all duration-300">
             <div class="flex justify-between items-start mb-4">
                 <span class="text-xs font-semibold px-2.5 py-1 rounded-md 
                     {% if ticket.priority == 'High' %} bg-red-100 text-red-700
@@ -42,7 +42,7 @@
                 <span class="text-xs text-slate-400 font-medium">{{ ticket.category_name }}</span>
                 <span class="text-xs text-slate-400">{{ ticket.created_at.strftime('%b %d, %Y') }}</span>
             </div>
-        </div>
+        </a>
         {% endfor %}
     </div>
     {% else %}

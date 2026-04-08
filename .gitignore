@@ -7,6 +7,12 @@ __pycache__/
 # Ignore environment variables
 .env
 
+# Ignore SQLite database
+database.db
+
+# Ignore file uploads
+static/uploads/
+
 # Ignore OS specific files
 .DS_Store
 Thumbs.db

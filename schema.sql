@@ -1,46 +1,56 @@
-CREATE DATABASE IF NOT EXISTS cms_db;
-USE cms_db;
-
 CREATE TABLE IF NOT EXISTS Users (
-    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INTEGER PRIMARY KEY AUTOINCREMENT,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(120) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL
+    password_hash VARCHAR(255) NOT NULL,
+    role VARCHAR(50) DEFAULT 'user'
 );
 
+CREATE UNIQUE INDEX IF NOT EXISTS idx_user_email ON Users(email);
+
 CREATE TABLE IF NOT EXISTS Categories (
-    category_id INT AUTO_INCREMENT PRIMARY KEY,
+    category_id INTEGER PRIMARY KEY AUTOINCREMENT,
     name VARCHAR(50) NOT NULL UNIQUE
 );
 
-CREATE TABLE IF NOT EXISTS Admins (
-    admin_id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(120) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL
-);
-
 CREATE TABLE IF NOT EXISTS Tickets (
-    ticket_id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    category_id INT NOT NULL,
+    ticket_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    category_id INTEGER NOT NULL,
     title VARCHAR(200) NOT NULL,
     description TEXT NOT NULL,
-    status ENUM('Pending', 'In Progress', 'Resolved') DEFAULT 'Pending',
-    priority ENUM('Low', 'Medium', 'High') DEFAULT 'Medium',
+    status VARCHAR(50) CHECK( status IN ('Pending', 'In Progress', 'Resolved') ) DEFAULT 'Pending',
+    priority VARCHAR(50) CHECK( priority IN ('Low', 'Medium', 'High') ) DEFAULT 'Medium',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    pending_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP,
+    resolved_at TIMESTAMP,
+    is_active BOOLEAN DEFAULT 1,
+    attachment_path TEXT,
     FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (category_id) REFERENCES Categories(category_id) ON DELETE RESTRICT
 );
 
 CREATE TABLE IF NOT EXISTS Ticket_Assignments (
-    assign_id INT AUTO_INCREMENT PRIMARY KEY,
-    ticket_id INT NOT NULL,
-    admin_id INT NOT NULL,
+    assign_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ticket_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
     assigned_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (ticket_id) REFERENCES Tickets(ticket_id) ON DELETE CASCADE,
-    FOREIGN KEY (admin_id) REFERENCES Admins(admin_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS Ticket_Logs (
+    log_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ticket_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    comment TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (ticket_id) REFERENCES Tickets(ticket_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_ticket_logs ON Ticket_Logs(ticket_id);
+
 -- Insert some default categories
-INSERT IGNORE INTO Categories (name) VALUES ('Hardware'), ('Software'), ('Network'), ('Other');
+INSERT OR IGNORE INTO Categories (name) VALUES ('Hardware'), ('Software'), ('Network'), ('Other');
